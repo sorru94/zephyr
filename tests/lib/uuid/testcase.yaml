@@ -1,0 +1,5 @@
+tests:
+  libraries.uuid:
+    tags: uuid
+    integration_platforms:
+      - native_sim
