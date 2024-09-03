@@ -42,6 +42,7 @@
 #include <zephyr/device.h>
 #include <zephyr/kernel.h>
 #include <zephyr/sys/util.h>
+#include <zephyr/sys/uuid.h>
 
 /**
  * @brief Trusted Execution Environment Interface
@@ -69,7 +70,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-#define TEE_UUID_LEN 16
 
 #define TEE_GEN_CAP_GP		BIT(0) /* GlobalPlatform compliant TEE */
 #define TEE_GEN_CAP_PRIVILEGED	BIT(1) /* Privileged device (for supplicant) */
@@ -203,8 +203,8 @@ struct tee_version_info {
   * @brief - Open session argument
   */
 struct tee_open_session_arg {
-	uint8_t uuid[TEE_UUID_LEN]; /**< [in] UUID of the Trusted Application */
-	uint8_t clnt_uuid[TEE_UUID_LEN]; /**< [in] UUID of client */
+	uuid_t uuid; /**< [in] UUID of the Trusted Application */
+	uuid_t clnt_uuid; /**< [in] UUID of client */
 	uint32_t clnt_login; /**< login class of client, TEE_IOCTL_LOGIN_* above */
 	uint32_t cancel_id; /**< [in] cancellation id, a unique value to identify this request */
 	uint32_t session; /**< [out] session id */

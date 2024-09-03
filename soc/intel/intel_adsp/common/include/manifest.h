@@ -11,6 +11,8 @@
 
 #include <stdint.h>
 
+#include <zephyr/sys/uuid.h>
+
 /* start offset for base FW module */
 #define SOF_MAN_ELF_TEXT_OFFSET		0x2000
 
@@ -77,7 +79,7 @@ struct sof_man_segment_desc {
 struct sof_man_module {
 	uint8_t struct_id[SOF_MAN_MOD_ID_LEN];	/* SOF_MAN_MOD_ID */
 	uint8_t name[SOF_MAN_MOD_NAME_LEN];
-	uint8_t uuid[16];
+	uuid_t uuid;
 	struct sof_man_module_type type;
 	uint8_t hash[SOF_MAN_MOD_SHA256_LEN];
 	uint32_t entry_point;

@@ -10,6 +10,8 @@
 
 #include <stdint.h>
 
+#include <zephyr/sys/uuid.h>
+
 /**
  * @brief USB Binary Device Object Store support
  * @defgroup usb_bos USB BOS support
@@ -45,7 +47,7 @@ struct usb_bos_platform_descriptor {
 	uint8_t bDescriptorType;
 	uint8_t bDevCapabilityType;
 	uint8_t bReserved;
-	uint8_t PlatformCapabilityUUID[16];
+	uuid_t PlatformCapabilityUUID;
 } __packed;
 
 /** WebUSB specific part of platform capability descriptor */
