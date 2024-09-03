@@ -14,6 +14,7 @@
 #define DHCPV6_INTERNAL_H_
 
 #include <zephyr/net/dhcpv6.h>
+#include <zephyr/sys/uuid.h>
 
 #define DHCPV6_DUID_TYPE_SIZE 2
 #define DHVPV6_DUID_LL_HW_TYPE_SIZE 2
@@ -81,7 +82,7 @@ struct dhcpv6_duid_ll {
 } __packed;
 
 struct dhcpv6_duid_uuid {
-	uint8_t uuid[16];
+	uuid_t uuid;
 } __packed;
 
 struct dhcpv6_msg_hdr {
