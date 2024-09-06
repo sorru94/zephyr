@@ -1,0 +1,6 @@
+tests:
+  libraries.uuid:
+    tags: uuid
+    filter: CONFIG_ENTROPY_HAS_DRIVER
+    integration_platforms:
+      - native_sim
