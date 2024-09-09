@@ -39,6 +39,19 @@
 #define UUID_V5_VERSION (5U)
 #define UUID_V5_VARIANT (2U)
 
+static void memcpy_swap(uint8_t *dst, const uint8_t *src, size_t length)
+{
+    __ASSERT(((src < dst && (src + length) <= dst) ||
+            (src > dst && (dst + length) <= src)),
+            "Source and destination buffers must not overlap");
+
+    src += length - 1;
+
+    for (; length > 0; length--) {
+        *dst++ = *src--;
+    }
+}
+
 #if defined(CONFIG_UUID_V4) || defined(CONFIG_UUID_V5)
 static void overwrite_uuid_version_and_variant(uuid_t uuid, uint8_t version, uint8_t variant)
 {
@@ -136,12 +149,38 @@ int uuid_generate_v5(const uuid_t namespace, const void *data, size_t data_size,
 }
 #endif
 
-int uuid_from_buffer(const uint8_t data[UUID_SIZE], uuid_t out)
+int uuid_from_buffer_be(const uint8_t data[UUID_SIZE], uuid_t out)
 {
 	if ((data == NULL) || (out == NULL)) {
 		return -EINVAL;
 	}
 	memcpy(out, data, UUID_SIZE);
+	return 0;
+}
+
+int uuid_from_buffer_le(const uint8_t data[UUID_SIZE], uuid_t out)
+{
+	if ((data == NULL) || (out == NULL)) {
+		return -EINVAL;
+	}
+
+	const size_t first_part_start = 0U;
+	const size_t first_part_size = 4U;
+	const size_t second_part_start = first_part_start + first_part_size;
+	const size_t second_part_size = 2U;
+	const size_t third_part_start = second_part_start + second_part_size;
+	const size_t third_part_size = 2U;
+	const size_t fourth_part_start = third_part_start + third_part_size;
+	const size_t fourth_part_size = 2U;
+	const size_t fifth_part_start = fourth_part_start + fourth_part_size;
+	const size_t fifth_part_size = 6U;
+
+	memcpy_swap(&out[first_part_start], &data[first_part_start], first_part_size);
+	memcpy_swap(&out[second_part_start], &data[second_part_start], second_part_size);
+	memcpy_swap(&out[third_part_start], &data[third_part_start], third_part_size);
+	memcpy_swap(&out[fourth_part_start], &data[fourth_part_start], fourth_part_size);
+	memcpy(&out[fifth_part_start], &data[fifth_part_start], fifth_part_size);
+
 	return 0;
 }
 

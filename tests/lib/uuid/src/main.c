@@ -48,7 +48,7 @@ ZTEST(uuid, test_uuid_v5)
 }
 #endif
 
-ZTEST(uuid, test_uuid_from_buffer)
+ZTEST(uuid, test_uuid_from_buffer_be)
 {
 	uint8_t uuid_buffer[UUID_SIZE] = {0x44, 0xb3, 0x5f, 0x73, 0xcf, 0xbd, 0x43, 0xb4,
 					  0x8f, 0xef, 0xca, 0x7b, 0xae, 0xa1, 0x37, 0x5f};
@@ -57,8 +57,24 @@ ZTEST(uuid, test_uuid_from_buffer)
 	const char *expected_uuid_string = "44b35f73-cfbd-43b4-8fef-ca7baea1375f";
 	int res;
 
-	res = uuid_from_buffer(uuid_buffer, uuid);
-	zassert_equal(0, res, "uuid_from_buffer returned an error");
+	res = uuid_from_buffer_be(uuid_buffer, uuid);
+	zassert_equal(0, res, "uuid_from_buffer_be returned an error");
+	res = uuid_to_string(uuid, uuid_string);
+	zassert_equal(0, res, "uuid_to_string returned an error");
+	zassert_str_equal(expected_uuid_string, uuid_string, "expected %s", expected_uuid_string);
+}
+
+ZTEST(uuid, test_uuid_from_buffer_le)
+{
+	uint8_t uuid_buffer[UUID_SIZE] = {0x44, 0xb3, 0x5f, 0x73, 0xcf, 0xbd, 0x43, 0xb4,
+					  0x8f, 0xef, 0xca, 0x7b, 0xae, 0xa1, 0x37, 0x5f};
+	uuid_t uuid;
+	char uuid_string[UUID_STR_LEN] = {0};
+	const char *expected_uuid_string = "735fb344-bdcf-b443-ef8f-ca7baea1375f";
+	int res;
+
+	res = uuid_from_buffer_le(uuid_buffer, uuid);
+	zassert_equal(0, res, "uuid_from_buffer_le returned an error");
 	res = uuid_to_string(uuid, uuid_string);
 	zassert_equal(0, res, "uuid_to_string returned an error");
 	zassert_str_equal(expected_uuid_string, uuid_string, "expected %s", expected_uuid_string);

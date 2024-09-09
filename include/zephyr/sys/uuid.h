@@ -74,7 +74,7 @@ int uuid_generate_v4(uuid_t out);
 int uuid_generate_v5(const uuid_t namespace, const void *data, size_t data_size, uuid_t out);
 
 /**
- * @brief Create a uuid_t from a binary formatted UUID.
+ * @brief Create a uuid_t from a binary (big-endian) formatted UUID.
  *
  * @param data The buffer where the binary UUID is stored in a big-endian order.
  * @param out The UUID where the result will be written.
@@ -82,7 +82,24 @@ int uuid_generate_v5(const uuid_t namespace, const void *data, size_t data_size,
  * @retval 0 The UUID has been correctly parsed and stored in @p out
  * @retval -EINVAL @p data or @p out are not acceptable
  */
-int uuid_from_buffer(const uint8_t data[UUID_SIZE], uuid_t out);
+int uuid_from_buffer_be(const uint8_t data[UUID_SIZE], uuid_t out);
+
+/**
+ * @brief Create a uuid_t from a binary (little-endian) formatted UUID.
+ *
+ * @details This function will assume the input UUID to be in the Microsoft Component Object
+ * Model (COM) GUIDs little endian format.
+ *
+ * An UUID in the standard big-endian RFC9562 representation `00112233-4455-6677-8899-AABBCCDDEEFF`
+ * has the equivalent little-endian COM GUID representation `33221100-5544-7766-8899-AABBCCDDEEFF`.
+ *
+ * @param data The buffer where the binary UUID is stored in a little-endian order.
+ * @param out The UUID where the result will be written.
+ *
+ * @retval 0 The UUID has been correctly parsed and stored in @p out
+ * @retval -EINVAL @p data or @p out are not acceptable
+ */
+int uuid_from_buffer_le(const uint8_t data[UUID_SIZE], uuid_t out);
 
 /**
  * @brief Parse a UUID from its canonical (RFC9562) string representation.
