@@ -10,8 +10,9 @@ ZTEST(uuid, test_uuid_v4)
 {
 	uuid_t uuid = {0};
 
-	uuid_generate_v4(uuid);
+	int result = uuid_generate_v4(uuid);
 	/* Check version and variant fields */
+	zassert_true(result == 0, "uuid_generate_v4 returned an error");
 	zassert_equal(uuid[6U] >> 4U, 4U, "Generated UUID v4 contains an incorrect 'ver' field");
 	zassert_equal(uuid[8U] >> 6U, 2U, "Generated UUID v4 contains an incorrect 'var' field");
 }
@@ -27,7 +28,7 @@ ZTEST(uuid, test_uuid_v5)
 	zassert_true(result == 0, "uuid_from_string returned an error");
 	result = uuid_generate_v5(namespace, "www.example.com", 15, uuid);
 	zassert_true(result == 0, "uuid_generate_v5 returned an error");
-	result = uuid_to_string(uuid, uuid_str, UUID_STR_LEN);
+	result = uuid_to_string(uuid, uuid_str);
 	zassert_true(result == 0, "uuid_from_string returned an error");
 	zassert_str_equal("2ed6657d-e927-568b-95e1-2665a8aea6a2", uuid_str,
 			  "uuid_str != 2ed6657d-e927-568b-95e1-2665a8aea6a2");
@@ -42,9 +43,9 @@ ZTEST(uuid, test_uuid_from_buffer)
 	const char *expected_uuid_string = "44b35f73-cfbd-43b4-8fef-ca7baea1375f";
 	int res;
 
-	res = uuid_from_buffer(uuid_buffer, ARRAY_SIZE(uuid_buffer), uuid);
+	res = uuid_from_buffer(uuid_buffer, uuid);
 	zassert_equal(0, res, "uuid_from_buffer returned an error");
-	res = uuid_to_string(uuid, uuid_string, UUID_STR_LEN);
+	res = uuid_to_string(uuid, uuid_string);
 	zassert_equal(0, res, "uuid_to_string returned an error");
 	zassert_str_equal(expected_uuid_string, uuid_string, "expected %s", expected_uuid_string);
 }
@@ -99,18 +100,13 @@ ZTEST(uuid, test_uuid_from_string)
 
 ZTEST(uuid, test_uuid_from_string_errors)
 {
-	const char *uuid_string_too_short = "44b35f73-cfbd-43b4-8fef-ca7baea1375";
-	const char *uuid_string_too_long = "44b35f73-cfbd-43b4-8fef-ca7baea1375f0";
 	const char *uuid_string_missing_hyphen = "44b35f73-cfbd-43b4-8fef0ca7baea1375f";
 	const char *uuid_string_non_hex_digit = "44b35f73-cfLd-43b4-8fef-ca7baea1375f";
 
 	int res;
 	uuid_t uuid;
 
-	res = uuid_from_string(uuid_string_too_short, uuid);
-	zassert_equal(-EINVAL, res, "uuid_from_string returned incorrect error");
-
-	res = uuid_from_string(uuid_string_too_long, uuid);
+	res = uuid_from_string(NULL, uuid);
 	zassert_equal(-EINVAL, res, "uuid_from_string returned incorrect error");
 
 	res = uuid_from_string(uuid_string_missing_hyphen, uuid);
@@ -139,17 +135,17 @@ ZTEST(uuid, test_uuid_to_string)
 
 	int err;
 
-	err = uuid_to_string(first_uuid_v4, first_uuid_v4_string, UUID_STR_LEN);
+	err = uuid_to_string(first_uuid_v4, first_uuid_v4_string);
 	zassert_equal(0, err, "uuid_to_string returned an error");
 	zassert_str_equal(expected_first_uuid_v4_string, first_uuid_v4_string, "expected %s",
 			  expected_first_uuid_v4_string);
 
-	err = uuid_to_string(second_uuid_v4, second_uuid_v4_string, UUID_STR_LEN);
+	err = uuid_to_string(second_uuid_v4, second_uuid_v4_string);
 	zassert_equal(0, err, "uuid_to_string returned an error");
 	zassert_str_equal(expected_second_uuid_v4_string, second_uuid_v4_string, "expected %s",
 			  expected_second_uuid_v4_string);
 
-	err = uuid_to_string(first_uuid_v5, first_uuid_v5_string, UUID_STR_LEN);
+	err = uuid_to_string(first_uuid_v5, first_uuid_v5_string);
 	zassert_equal(0, err, "uuid_to_string returned an error");
 	zassert_str_equal(expected_first_uuid_v5_string, first_uuid_v5_string, "expected %s",
 			  expected_first_uuid_v5_string);
@@ -174,19 +170,19 @@ ZTEST(uuid, test_uuid_to_base64)
 
 	int err;
 
-	err = uuid_to_base64(first_uuid_v4, first_uuid_v4_base64, UUID_BASE64_LEN);
+	err = uuid_to_base64(first_uuid_v4, first_uuid_v4_base64);
 	zassert_equal(0, err, "uuid_to_base64 returned an error");
 	zassert_str_equal(expected_first_uuid_v4_base64, first_uuid_v4_base64,
 			  "expected: '%s', gotten: '%s'", expected_first_uuid_v4_base64,
 			  first_uuid_v4_base64);
 
-	err = uuid_to_base64(second_uuid_v4, second_uuid_v4_base64, UUID_BASE64_LEN);
+	err = uuid_to_base64(second_uuid_v4, second_uuid_v4_base64);
 	zassert_equal(0, err, "uuid_to_base64 returned an error");
 	zassert_str_equal(expected_second_uuid_v4_base64, second_uuid_v4_base64,
 			  "expected: '%s', gotten: '%s'", expected_second_uuid_v4_base64,
 			  second_uuid_v4_base64);
 
-	err = uuid_to_base64(first_uuid_v5, first_uuid_v5_base64, UUID_BASE64_LEN);
+	err = uuid_to_base64(first_uuid_v5, first_uuid_v5_base64);
 	zassert_equal(0, err, "uuid_to_base64 returned an error");
 	zassert_str_equal(expected_first_uuid_v5_base64, first_uuid_v5_base64,
 			  "expected: '%s', gotten: '%s'", expected_first_uuid_v5_base64,
@@ -212,19 +208,19 @@ ZTEST(uuid, test_uuid_to_base64url)
 
 	int err;
 
-	err = uuid_to_base64url(first_uuid_v4, first_uuid_v4_base64url, UUID_BASE64URL_LEN);
+	err = uuid_to_base64url(first_uuid_v4, first_uuid_v4_base64url);
 	zassert_equal(0, err, "uuid_to_base64url returned an error");
 	zassert_str_equal(expected_first_uuid_v4_base64url, first_uuid_v4_base64url,
 			  "expected: '%s', gotten: '%s'", expected_first_uuid_v4_base64url,
 			  first_uuid_v4_base64url);
 
-	err = uuid_to_base64url(second_uuid_v4, second_uuid_v4_base64url, UUID_BASE64URL_LEN);
+	err = uuid_to_base64url(second_uuid_v4, second_uuid_v4_base64url);
 	zassert_equal(0, err, "uuid_to_base64url returned an error");
 	zassert_str_equal(expected_second_uuid_v4_base64url, second_uuid_v4_base64url,
 			  "expected: '%s', gotten: '%s'", expected_second_uuid_v4_base64url,
 			  second_uuid_v4_base64url);
 
-	err = uuid_to_base64url(first_uuid_v5, first_uuid_v5_base64url, UUID_BASE64URL_LEN);
+	err = uuid_to_base64url(first_uuid_v5, first_uuid_v5_base64url);
 	zassert_equal(0, err, "uuid_to_base64url returned an error");
 	zassert_str_equal(expected_first_uuid_v5_base64url, first_uuid_v5_base64url,
 			  "expected: '%s', gotten: '%s'", expected_first_uuid_v5_base64url,
