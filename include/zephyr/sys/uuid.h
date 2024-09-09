@@ -67,7 +67,7 @@ int uuid_generate_v4(uuid_t out);
  * @param[out] out The UUID where the result will be written.
  *
  * @retval 0 The UUID has been correctly generated and stored in @p out
- * @retval -EINVAL @p input is not acceptable
+ * @retval -EINVAL @p input or @p out are not acceptable
  * @retval -ENOMEM Memory allocation failed
  * @retval -ENOTSUP mbedTLS returned an unrecognized error
  */
@@ -80,7 +80,7 @@ int uuid_generate_v5(const uuid_t namespace, const void *data, size_t data_size,
  * @param out The UUID where the result will be written.
  *
  * @retval 0 The UUID has been correctly parsed and stored in @p out
- * @retval -EINVAL @p data is null or @p data_size is too small
+ * @retval -EINVAL @p data or @p out are not acceptable
  */
 int uuid_from_buffer(const uint8_t data[UUID_SIZE], uuid_t out);
 
@@ -91,7 +91,7 @@ int uuid_from_buffer(const uint8_t data[UUID_SIZE], uuid_t out);
  * @param out The UUID where the result will be written.
  *
  * @retval 0 The UUID has been correctly parsed and stored in @p out
- * @retval -EINVAL @p input is not acceptable
+ * @retval -EINVAL @p input or @p out are not acceptable
  */
 int uuid_from_string(const char input[UUID_STR_LEN], uuid_t out);
 
@@ -102,7 +102,7 @@ int uuid_from_string(const char input[UUID_STR_LEN], uuid_t out);
  * @param out A pointer to a previously allocated buffer where the result will be written..
  *
  * @retval 0 The UUID has been converted and written in @p out
- * @retval -EINVAL @p out is null or @p out_size is too small
+ * @retval -EINVAL @p uuid or @p out are not acceptable
  */
 int uuid_to_string(const uuid_t uuid, char out[UUID_STR_LEN]);
 
@@ -114,7 +114,7 @@ int uuid_to_string(const uuid_t uuid, char out[UUID_STR_LEN]);
  * @param out_size The size of the out buffer. Should be at least UUID_BASE64_LEN chars.
  *
  * @retval 0 The UUID has been converted and written in @p out
- * @retval -EINVAL @p out is null or @p out_size is too small
+ * @retval -EINVAL @p uuid or @p out are not acceptable
  */
 int uuid_to_base64(const uuid_t uuid, char out[UUID_BASE64_LEN]);
 
@@ -126,7 +126,7 @@ int uuid_to_base64(const uuid_t uuid, char out[UUID_BASE64_LEN]);
  * @param out A pointer to a previously allocated buffer where the result will be written.
  *
  * @retval 0 The UUID has been converted and written in @p out
- * @retval -EINVAL @p out is null or @p out_size is too small
+ * @retval -EINVAL @p uuid or @p out are not acceptable
  */
 int uuid_to_base64url(const uuid_t uuid, char out[UUID_BASE64URL_LEN]);
 
