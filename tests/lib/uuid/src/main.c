@@ -6,6 +6,7 @@
 #include <zephyr/ztest.h>
 #include <zephyr/sys/uuid.h>
 
+#ifdef CONFIG_UUID_V4
 ZTEST(uuid, test_uuid_v4)
 {
 	uuid_t uuid = {0};
@@ -16,7 +17,14 @@ ZTEST(uuid, test_uuid_v4)
 	zassert_equal(uuid[6U] >> 4U, 4U, "Generated UUID v4 contains an incorrect 'ver' field");
 	zassert_equal(uuid[8U] >> 6U, 2U, "Generated UUID v4 contains an incorrect 'var' field");
 }
+#else
+ZTEST(uuid, test_uuid_v4)
+{
+     ztest_test_skip();
+}
+#endif
 
+#ifdef CONFIG_UUID_V5
 ZTEST(uuid, test_uuid_v5)
 {
 	uuid_t namespace;
@@ -33,6 +41,12 @@ ZTEST(uuid, test_uuid_v5)
 	zassert_str_equal("2ed6657d-e927-568b-95e1-2665a8aea6a2", uuid_str,
 			  "uuid_str != 2ed6657d-e927-568b-95e1-2665a8aea6a2");
 }
+#else
+ZTEST(uuid, test_uuid_v5)
+{
+     ztest_test_skip();
+}
+#endif
 
 ZTEST(uuid, test_uuid_from_buffer)
 {
@@ -151,6 +165,7 @@ ZTEST(uuid, test_uuid_to_string)
 			  expected_first_uuid_v5_string);
 }
 
+#ifdef CONFIG_UUID_BASE64
 ZTEST(uuid, test_uuid_to_base64)
 {
 	char first_uuid_v4_base64[UUID_BASE64_LEN] = {0};
@@ -188,7 +203,14 @@ ZTEST(uuid, test_uuid_to_base64)
 			  "expected: '%s', gotten: '%s'", expected_first_uuid_v5_base64,
 			  first_uuid_v5_base64);
 }
+#else
+ZTEST(uuid, test_uuid_to_base64)
+{
+     ztest_test_skip();
+}
+#endif
 
+#ifdef CONFIG_UUID_BASE64
 ZTEST(uuid, test_uuid_to_base64url)
 {
 	char first_uuid_v4_base64url[UUID_BASE64URL_LEN] = {0};
@@ -226,5 +248,11 @@ ZTEST(uuid, test_uuid_to_base64url)
 			  "expected: '%s', gotten: '%s'", expected_first_uuid_v5_base64url,
 			  first_uuid_v5_base64url);
 }
+#else
+ZTEST(uuid, test_uuid_to_base64url)
+{
+     ztest_test_skip();
+}
+#endif
 
 ZTEST_SUITE(uuid, NULL, NULL, NULL, NULL, NULL);

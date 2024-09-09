@@ -34,13 +34,13 @@ extern "C" {
 #define UUID_STR_LEN 37U
 
 /** @brief Length of the UUID base64 string representation, including the NULL terminator. */
-#define UUID_BASE64_LEN 25
+#define UUID_BASE64_LEN 25U
 
 /**
  * @brief Length of the UUID base64 URL and filename safe string representation, including the
  * NULL terminator.
  */
-#define UUID_BASE64URL_LEN 23
+#define UUID_BASE64URL_LEN 23U
 
 /** @brief Binary representation of a UUID. */
 typedef uint8_t uuid_t[UUID_SIZE];
