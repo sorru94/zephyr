@@ -45,7 +45,11 @@ extern "C" {
 #define UUID_BASE64URL_LEN 23U
 
 /** @brief Binary representation of a UUID. */
-typedef uint8_t uuid_t[UUID_SIZE];
+struct uuid {
+	/** @cond INTERNAL_HIDDEN */
+	uint8_t val[UUID_SIZE];
+	/** @endcond */
+};
 
 /**
  * @brief Generate a UUIDv4.
@@ -55,7 +59,7 @@ typedef uint8_t uuid_t[UUID_SIZE];
  * @retval 0 The UUID has been correctly generated and stored in @p out
  * @retval -EINVAL @p out is not acceptable
  */
-int uuid_generate_v4(uuid_t out);
+int uuid_generate_v4(struct uuid *out);
 
 /**
  * @brief Generate a UUIDv5.
@@ -69,11 +73,11 @@ int uuid_generate_v4(uuid_t out);
  * @param[out] out The UUID where the result will be written.
  *
  * @retval 0 The UUID has been correctly generated and stored in @p out
- * @retval -EINVAL @p input or @p out are not acceptable
+ * @retval -EINVAL @p out is not acceptable
  * @retval -ENOMEM Memory allocation failed
  * @retval -ENOTSUP mbedTLS returned an unrecognized error
  */
-int uuid_generate_v5(const uuid_t namespace, const void *data, size_t data_size, uuid_t out);
+int uuid_generate_v5(struct uuid namespace, const void *data, size_t data_size, struct uuid *out);
 
 /**
  * @brief Copy an UUID into another UUID.
@@ -82,9 +86,9 @@ int uuid_generate_v5(const uuid_t namespace, const void *data, size_t data_size,
  * @param src Source for the copy.
  *
  * @retval 0 The UUID has been correctly copied in @p dst
- * @retval -EINVAL @p dst or @p src are not acceptable
+ * @retval -EINVAL @p dst is not acceptable
  */
-int uuid_copy(uuid_t dst, const uuid_t src);
+int uuid_copy(struct uuid *dst, struct uuid src);
 
 /**
  * @brief Create a uuid_t from a binary (big-endian) formatted UUID.
@@ -95,7 +99,7 @@ int uuid_copy(uuid_t dst, const uuid_t src);
  * @retval 0 The UUID has been correctly parsed and stored in @p out
  * @retval -EINVAL @p data or @p out are not acceptable
  */
-int uuid_from_buffer(const uint8_t data[UUID_SIZE], uuid_t out);
+int uuid_from_buffer(const uint8_t data[UUID_SIZE], struct uuid *out);
 
 /**
  * @brief Parse a UUID from its canonical (RFC9562) string representation.
@@ -106,7 +110,7 @@ int uuid_from_buffer(const uint8_t data[UUID_SIZE], uuid_t out);
  * @retval 0 The UUID has been correctly parsed and stored in @p out
  * @retval -EINVAL @p input or @p out are not acceptable
  */
-int uuid_from_string(const char input[UUID_STR_LEN], uuid_t out);
+int uuid_from_string(const char input[UUID_STR_LEN], struct uuid *out);
 
 /**
  * @brief Create a uuid_t from a binary (big-endian) formatted UUID.
@@ -115,43 +119,43 @@ int uuid_from_string(const char input[UUID_STR_LEN], uuid_t out);
  * @param buff The buffer where the binary UUID is stored in a big-endian order.
  *
  * @retval 0 The UUID has been correctly parsed and stored in @p buff
- * @retval -EINVAL @p input or @p buff are not acceptable
+ * @retval -EINVAL @p buff is not acceptable
  */
 int uuid_to_buffer(struct uuid input, uint8_t buff[UUID_SIZE]);
 
 /**
  * @brief Convert a UUID to its canonical (RFC9562) string representation.
  *
- * @param uuid The UUID to convert to string.
+ * @param input The UUID to convert to string.
  * @param out A pointer to a previously allocated buffer where the result will be written.
  *
  * @retval 0 The UUID has been converted and written in @p out
- * @retval -EINVAL @p uuid or @p out are not acceptable
+ * @retval -EINVAL @p out is not acceptable
  */
-int uuid_to_string(const uuid_t uuid, char out[UUID_STR_LEN]);
+int uuid_to_string(struct uuid input, char out[UUID_STR_LEN]);
 
 /**
  * @brief Convert a UUID to its base 64 (RFC 3548, RFC 4648) string representation.
  *
- * @param uuid The UUID to convert to string.
+ * @param input The UUID to convert to string.
  * @param out A pointer to a previously allocated buffer where the result will be written.
  *
  * @retval 0 The UUID has been converted and written in @p out
- * @retval -EINVAL @p uuid or @p out are not acceptable
+ * @retval -EINVAL @p out is not acceptable
  */
-int uuid_to_base64(const uuid_t uuid, char out[UUID_BASE64_LEN]);
+int uuid_to_base64(struct uuid input, char out[UUID_BASE64_LEN]);
 
 /**
  * @brief Convert a UUID to its base 64 (RFC 4648 sec. 5) URL and filename safe string
  * representation.
  *
- * @param uuid The UUID to convert to string.
+ * @param input The UUID to convert to string.
  * @param out A pointer to a previously allocated buffer where the result will be written.
  *
  * @retval 0 The UUID has been converted and written in @p out
- * @retval -EINVAL @p uuid or @p out are not acceptable
+ * @retval -EINVAL @p out is not acceptable
  */
-int uuid_to_base64url(const uuid_t uuid, char out[UUID_BASE64URL_LEN]);
+int uuid_to_base64url(struct uuid input, char out[UUID_BASE64URL_LEN]);
 
 /**
  * @}

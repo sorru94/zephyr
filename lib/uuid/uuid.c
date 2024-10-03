@@ -40,14 +40,14 @@
 #define UUID_V5_VARIANT (2U)
 
 #if defined(CONFIG_UUID_V4) || defined(CONFIG_UUID_V5)
-static void overwrite_uuid_version_and_variant(uuid_t uuid, uint8_t version, uint8_t variant)
+static void overwrite_uuid_version_and_variant(uint8_t version, uint8_t variant, struct uuid *out)
 {
 	/* Clear the 'ver' and 'var' fields */
-	uuid[UUID_POSITION_VERSION] &= ~UUID_MASK_VERSION;
-	uuid[UUID_POSITION_VARIANT] &= ~UUID_MASK_VARIANT;
+	out->val[UUID_POSITION_VERSION] &= ~UUID_MASK_VERSION;
+	out->val[UUID_POSITION_VARIANT] &= ~UUID_MASK_VARIANT;
 	/* Update the 'ver' and 'var' fields */
-	uuid[UUID_POSITION_VERSION] |= (uint8_t)(version << UUID_OFFSET_VERSION);
-	uuid[UUID_POSITION_VARIANT] |= (uint8_t)(variant << UUID_OFFSET_VARIANT);
+	out->val[UUID_POSITION_VERSION] |= (uint8_t)(version << UUID_OFFSET_VERSION);
+	out->val[UUID_POSITION_VARIANT] |= (uint8_t)(variant << UUID_OFFSET_VARIANT);
 }
 #endif
 
@@ -65,23 +65,23 @@ static bool should_be_hyphen(unsigned int position)
 }
 
 #if defined(CONFIG_UUID_V4)
-int uuid_generate_v4(uuid_t out)
+int uuid_generate_v4(struct uuid *out)
 {
 	if (out == NULL) {
 		return -EINVAL;
 	}
 	/* Fill the whole UUID struct with a random number */
-	sys_rand_get(out, UUID_SIZE);
+	sys_rand_get(out->val, UUID_SIZE);
 	/* Update version and variant */
-	overwrite_uuid_version_and_variant(out, UUID_V4_VERSION, UUID_V4_VARIANT);
+	overwrite_uuid_version_and_variant(UUID_V4_VERSION, UUID_V4_VARIANT, out);
 	return 0;
 }
 #endif
 
 #if defined(CONFIG_UUID_V5)
-int uuid_generate_v5(const uuid_t namespace, const void *data, size_t data_size, uuid_t out)
+int uuid_generate_v5(struct uuid namespace, const void *data, size_t data_size, struct uuid *out)
 {
-	if ((out == NULL) || (namespace == NULL)) {
+	if (out == NULL) {
 		return -EINVAL;
 	}
 	int mbedtls_err = 0;
@@ -108,7 +108,7 @@ int uuid_generate_v5(const uuid_t namespace, const void *data, size_t data_size,
 		/* Might return MBEDTLS_ERR_MD_BAD_INPUT_DATA */
 		return -EINVAL;
 	}
-	mbedtls_err = mbedtls_md_update(&ctx, namespace, UUID_SIZE);
+	mbedtls_err = mbedtls_md_update(&ctx, namespace.val, UUID_SIZE);
 	if (mbedtls_err != 0) {
 		/* Might return MBEDTLS_ERR_MD_BAD_INPUT_DATA */
 		return -EINVAL;
@@ -127,34 +127,34 @@ int uuid_generate_v5(const uuid_t namespace, const void *data, size_t data_size,
 
 	/* Store the computed SHA1 in the out struct */
 	for (unsigned int i = 0; i < UUID_SIZE; i++) {
-		out[i] = sha_result[i];
+		out->val[i] = sha_result[i];
 	}
 	/* Update version and variant */
-	overwrite_uuid_version_and_variant(out, UUID_V5_VERSION, UUID_V5_VARIANT);
+	overwrite_uuid_version_and_variant(UUID_V5_VERSION, UUID_V5_VARIANT, out);
 
 	return 0;
 }
 #endif
 
-int uuid_copy(uuid_t dst, const uuid_t src)
+int uuid_copy(struct uuid *dst, struct uuid src)
 {
-	if ((dst == NULL) || (src == NULL)) {
+	if (dst == NULL) {
 		return -EINVAL;
 	}
-	memcpy(dst, src, UUID_SIZE);
+	memcpy(dst->val, src.val, UUID_SIZE);
 	return 0;
 }
 
-int uuid_from_buffer(const uint8_t data[UUID_SIZE], uuid_t out)
+int uuid_from_buffer(const uint8_t data[UUID_SIZE], struct uuid *out)
 {
 	if ((data == NULL) || (out == NULL)) {
 		return -EINVAL;
 	}
-	memcpy(out, data, UUID_SIZE);
+	memcpy(out->val, data, UUID_SIZE);
 	return 0;
 }
 
-int uuid_from_string(const char input[UUID_STR_LEN], uuid_t out)
+int uuid_from_string(const char input[UUID_STR_LEN], struct uuid *out)
 {
 	if ((input == NULL) || (strlen(input) + 1 != UUID_STR_LEN) || (out == NULL)) {
 		return -EINVAL;
@@ -185,7 +185,7 @@ int uuid_from_string(const char input[UUID_STR_LEN], uuid_t out)
 		}
 
 		size_t hex2bin_rc =
-			hex2bin(&input[input_idx], 2, &out[out_idx], UUID_SIZE - out_idx);
+			hex2bin(&input[input_idx], 2, &out->val[out_idx], UUID_SIZE - out_idx);
 		if (hex2bin_rc != 1) {
 			return -EINVAL;
 		}
@@ -206,32 +206,33 @@ int uuid_to_buffer(struct uuid input, uint8_t buff[UUID_SIZE])
 
 int uuid_to_string(struct uuid input, char out[UUID_STR_LEN])
 {
-	if ((uuid == NULL) || out == NULL) {
+	if (out == NULL) {
 		return -EINVAL;
 	}
 	snprintf(out, UUID_STR_LEN,
-		 "%02x%02x%02x%02x-%02x%02x-%02x%02x-%02x%02x-%02x%02x%02x%02x%02x%02x", uuid[0],
-		 uuid[1], uuid[2], uuid[3], uuid[4], uuid[5], uuid[6], uuid[7], uuid[8], uuid[9],
-		 uuid[10], uuid[11], uuid[12], uuid[13], uuid[14], uuid[15]);
+		 "%02x%02x%02x%02x-%02x%02x-%02x%02x-%02x%02x-%02x%02x%02x%02x%02x%02x",
+		 input.val[0], input.val[1], input.val[2], input.val[3], input.val[4], input.val[5],
+		 input.val[6], input.val[7], input.val[8], input.val[9], input.val[10],
+		 input.val[11], input.val[12], input.val[13], input.val[14], input.val[15]);
 	return 0;
 }
 
 #if defined(CONFIG_UUID_BASE64)
-int uuid_to_base64(const uuid_t uuid, char out[UUID_BASE64_LEN])
+int uuid_to_base64(struct uuid input, char out[UUID_BASE64_LEN])
 {
-	if ((uuid == NULL) || out == NULL) {
+	if (out == NULL) {
 		return -EINVAL;
 	}
 
 	size_t olen = 0;
 
-	base64_encode(out, UUID_BASE64_LEN, &olen, uuid, UUID_SIZE);
+	base64_encode(out, UUID_BASE64_LEN, &olen, input.val, UUID_SIZE);
 	return 0;
 }
 
-int uuid_to_base64url(const uuid_t uuid, char out[UUID_BASE64URL_LEN])
+int uuid_to_base64url(struct uuid input, char out[UUID_BASE64URL_LEN])
 {
-	if ((uuid == NULL) || out == NULL) {
+	if (out == NULL) {
 		return -EINVAL;
 	}
 
@@ -239,7 +240,7 @@ int uuid_to_base64url(const uuid_t uuid, char out[UUID_BASE64URL_LEN])
 	size_t olen = 0;
 	char uuid_base64[UUID_BASE64_LEN] = {0};
 
-	base64_encode(uuid_base64, UUID_BASE64_LEN, &olen, uuid, UUID_SIZE);
+	base64_encode(uuid_base64, UUID_BASE64_LEN, &olen, input.val, UUID_SIZE);
 	/* Convert UUID to RFC 4648 sec. 5 URL and filename safe base 64 notation */
 	for (unsigned int i = 0; i < UUID_BASE64URL_LEN - 1; i++) {
 		if (uuid_base64[i] == '+') {
