@@ -136,12 +136,12 @@ int uuid_generate_v5(struct uuid namespace, const void *data, size_t data_size, 
 }
 #endif
 
-int uuid_copy(struct uuid *dst, struct uuid src)
+int uuid_copy(struct uuid data, struct uuid *out)
 {
-	if (dst == NULL) {
+	if (out == NULL) {
 		return -EINVAL;
 	}
-	memcpy(dst->val, src.val, UUID_SIZE);
+	memcpy(out->val, data.val, UUID_SIZE);
 	return 0;
 }
 
@@ -154,13 +154,13 @@ int uuid_from_buffer(const uint8_t data[UUID_SIZE], struct uuid *out)
 	return 0;
 }
 
-int uuid_from_string(const char input[UUID_STR_LEN], struct uuid *out)
+int uuid_from_string(const char data[UUID_STR_LEN], struct uuid *out)
 {
-	if ((input == NULL) || (strlen(input) + 1 != UUID_STR_LEN) || (out == NULL)) {
+	if ((data == NULL) || (strlen(data) + 1 != UUID_STR_LEN) || (out == NULL)) {
 		return -EINVAL;
 	}
 	for (unsigned int i = 0; i < UUID_STR_LEN - 1; i++) {
-		char char_i = input[i];
+		char char_i = data[i];
 		/* Check that hyphens are in the right place */
 		if (should_be_hyphen(i)) {
 			if (char_i != '-') {
@@ -175,32 +175,32 @@ int uuid_from_string(const char input[UUID_STR_LEN], struct uuid *out)
 	}
 
 	/* Content parsing */
-	unsigned int input_idx = 0U;
+	unsigned int data_idx = 0U;
 	unsigned int out_idx = 0U;
 
-	while (input_idx < UUID_STR_LEN - 1) {
-		if (should_be_hyphen(input_idx)) {
-			input_idx += 1;
+	while (data_idx < UUID_STR_LEN - 1) {
+		if (should_be_hyphen(data_idx)) {
+			data_idx += 1;
 			continue;
 		}
 
 		size_t hex2bin_rc =
-			hex2bin(&input[input_idx], 2, &out->val[out_idx], UUID_SIZE - out_idx);
+			hex2bin(&data[data_idx], 2, &out->val[out_idx], UUID_SIZE - out_idx);
 		if (hex2bin_rc != 1) {
 			return -EINVAL;
 		}
 		out_idx++;
-		input_idx += 2;
+		data_idx += 2;
 	}
 	return 0;
 }
 
-int uuid_to_buffer(struct uuid input, uint8_t buff[UUID_SIZE])
+int uuid_to_buffer(struct uuid data, uint8_t out[UUID_SIZE])
 {
-	if (buff == NULL) {
+	if (out == NULL) {
 		return -EINVAL;
 	}
-	memcpy(buff, input.val, UUID_SIZE);
+	memcpy(out, data.val, UUID_SIZE);
 	return 0;
 }
 
@@ -211,14 +211,14 @@ int uuid_to_string(struct uuid input, char out[UUID_STR_LEN])
 	}
 	snprintf(out, UUID_STR_LEN,
 		 "%02x%02x%02x%02x-%02x%02x-%02x%02x-%02x%02x-%02x%02x%02x%02x%02x%02x",
-		 input.val[0], input.val[1], input.val[2], input.val[3], input.val[4], input.val[5],
-		 input.val[6], input.val[7], input.val[8], input.val[9], input.val[10],
-		 input.val[11], input.val[12], input.val[13], input.val[14], input.val[15]);
+		 data.val[0], data.val[1], data.val[2], data.val[3], data.val[4], data.val[5],
+		 data.val[6], data.val[7], data.val[8], data.val[9], data.val[10],
+		 data.val[11], data.val[12], data.val[13], data.val[14], data.val[15]);
 	return 0;
 }
 
 #if defined(CONFIG_UUID_BASE64)
-int uuid_to_base64(struct uuid input, char out[UUID_BASE64_LEN])
+int uuid_to_base64(struct uuid data, char out[UUID_BASE64_LEN])
 {
 	if (out == NULL) {
 		return -EINVAL;
@@ -226,11 +226,11 @@ int uuid_to_base64(struct uuid input, char out[UUID_BASE64_LEN])
 
 	size_t olen = 0;
 
-	base64_encode(out, UUID_BASE64_LEN, &olen, input.val, UUID_SIZE);
+	base64_encode(out, UUID_BASE64_LEN, &olen, data.val, UUID_SIZE);
 	return 0;
 }
 
-int uuid_to_base64url(struct uuid input, char out[UUID_BASE64URL_LEN])
+int uuid_to_base64url(struct uuid data, char out[UUID_BASE64URL_LEN])
 {
 	if (out == NULL) {
 		return -EINVAL;
@@ -240,7 +240,7 @@ int uuid_to_base64url(struct uuid input, char out[UUID_BASE64URL_LEN])
 	size_t olen = 0;
 	char uuid_base64[UUID_BASE64_LEN] = {0};
 
-	base64_encode(uuid_base64, UUID_BASE64_LEN, &olen, input.val, UUID_SIZE);
+	base64_encode(uuid_base64, UUID_BASE64_LEN, &olen, data.val, UUID_SIZE);
 	/* Convert UUID to RFC 4648 sec. 5 URL and filename safe base 64 notation */
 	for (unsigned int i = 0; i < UUID_BASE64URL_LEN - 1; i++) {
 		if (uuid_base64[i] == '+') {
