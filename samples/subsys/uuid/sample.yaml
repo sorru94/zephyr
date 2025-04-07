@@ -1,0 +1,14 @@
+sample:
+  name: UUID
+
+tests:
+  sample.subsys.uuid:
+    tags: uuid
+    timeout: 10
+    platform_allow:
+      - qemu_x86
+      - native_sim
+      - native_sim/native/64
+    integration_platforms:
+      - native_sim
+    filter: CONFIG_ENTROPY_HAS_DRIVER
