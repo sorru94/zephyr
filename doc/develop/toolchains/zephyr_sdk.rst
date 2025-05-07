@@ -89,7 +89,7 @@ Zephyr SDK installation
 
       #. Download and verify the `Zephyr SDK bundle`_:
 
-         .. parsed-literal::
+         .. code-block:: shell
 
             cd ~
             wget |sdk-url-linux|
@@ -100,7 +100,7 @@ Zephyr SDK installation
 
       #. Extract the Zephyr SDK bundle archive:
 
-         .. parsed-literal::
+         .. code-block:: shell
 
             tar xvf zephyr-sdk- |sdk-version-trim| _linux-x86_64.tar.xz
 
@@ -120,7 +120,7 @@ Zephyr SDK installation
 
       #. Run the Zephyr SDK bundle setup script:
 
-         .. parsed-literal::
+         .. code-block:: shell
 
             cd zephyr-sdk- |sdk-version-ltrim|
             ./setup.sh
@@ -134,7 +134,7 @@ Zephyr SDK installation
       #. Install `udev <https://en.wikipedia.org/wiki/Udev>`_ rules, which
          allow you to flash most Zephyr boards as a regular user:
 
-         .. parsed-literal::
+         .. code-block:: shell
 
             sudo cp ~/zephyr-sdk- |sdk-version-trim| /sysroots/x86_64-pokysdk-linux/usr/share/openocd/contrib/60-openocd.rules /etc/udev/rules.d
             sudo udevadm control --reload
@@ -145,7 +145,7 @@ Zephyr SDK installation
 
       #. Download and verify the `Zephyr SDK bundle`_:
 
-         .. parsed-literal::
+         .. code-block:: shell
 
             cd ~
             curl -L -O |sdk-url-macos|
@@ -156,7 +156,7 @@ Zephyr SDK installation
 
       #. Extract the Zephyr SDK bundle archive:
 
-         .. parsed-literal::
+         .. code-block:: shell
 
             tar xvf zephyr-sdk- |sdk-version-trim| _macos-x86_64.tar.xz
 
@@ -176,7 +176,7 @@ Zephyr SDK installation
 
       #. Run the Zephyr SDK bundle setup script:
 
-         .. parsed-literal::
+         .. code-block:: shell
 
             cd zephyr-sdk- |sdk-version-ltrim|
             ./setup.sh
@@ -195,14 +195,14 @@ Zephyr SDK installation
 
       #. Download the `Zephyr SDK bundle`_:
 
-         .. parsed-literal::
+         .. code-block:: shell
 
             cd %HOMEPATH%
             wget |sdk-url-windows|
 
       #. Extract the Zephyr SDK bundle archive:
 
-         .. parsed-literal::
+         .. code-block:: shell
 
             7z x zephyr-sdk- |sdk-version-trim| _windows-x86_64.7z
 
@@ -218,7 +218,7 @@ Zephyr SDK installation
 
       #. Run the Zephyr SDK bundle setup script:
 
-         .. parsed-literal::
+         .. code-block:: shell
 
             cd zephyr-sdk- |sdk-version-ltrim|
             setup.cmd
