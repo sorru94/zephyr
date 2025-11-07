@@ -3,7 +3,7 @@ littlefs-python list zephyr/samples/subsys/fs/littlefs/lfs.bin --block-size 4096
 
 JLinkExe -Device RW612 -if SWD -Speed 4000
 connect
-LoadBin /home/simone/zephyr-workspace/zephyr/samples/subsys/fs/littlefs/lfs.bin 0x8623000
+LoadBin /home/simone/zephyr-workspace/zephyr/samples/subsys/fs/littlefs/lfs.bin 0xBE20000
 reset
 exit
 

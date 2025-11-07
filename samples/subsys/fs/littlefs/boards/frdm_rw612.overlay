@@ -23,9 +23,9 @@
         #address-cells = <1>;
         #size-cells = <1>;
 
-        lfs1_part: partition@623000 {
+        lfs1_part: partition@3E20000 {
             label = "storage";
-            reg = <0x623000 0x6000>;
+            reg = <0x03E20000 DT_SIZE_K(24)>;
         };
     };
 };
