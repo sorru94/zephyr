@@ -1,0 +1,11 @@
+littlefs-python create zephyr/samples/subsys/fs/littlefs/config_lfs/ zephyr/samples/subsys/fs/littlefs/lfs.bin --block-size 4096 --block-count 6
+littlefs-python list zephyr/samples/subsys/fs/littlefs/lfs.bin --block-size 4096
+
+JLinkExe -Device RW612 -if SWD -Speed 4000
+connect
+LoadBin /home/simone/zephyr-workspace/zephyr/samples/subsys/fs/littlefs/lfs.bin 0x8623000
+reset
+exit
+
+west build -p -b frdm_rw612 zephyr/samples/subsys/fs/littlefs/
+west flash
