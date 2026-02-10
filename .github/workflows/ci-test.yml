@@ -1,0 +1,36 @@
+# (C) Copyright 2026, SECO Mind Srl
+#
+# SPDX-License-Identifier: Apache-2.0
+
+name: Check CI
+
+on:
+  push:
+    branches:
+    - check-ci
+
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+    concurrency:
+      group: check-ci-${{ github.ref }}
+      cancel-in-progress: true
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          path: zephyr
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: 3.12
+      - name: Setup zephyr
+        run: |
+          pip install west
+          west init -l ./zephyr
+          west update
+          west zephyr-export
+          pip install -r ./zephyr/scripts/requirements.txt
+      - name: Use twister
+        working-directory: zephyr
+        run: ./scripts/twister --help
